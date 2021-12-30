@@ -7,14 +7,14 @@ app = Flask(__name__)
 def hello():
     return 'Hello, World!'
 
-
-
-
 @app.route('/talhas')
 def talha():
     return "this is talhas route"
     
-
 @app.route('/about')
 def intro():
     return "This is us"
+
+@app.route('/contact')
+def intro():
+    return "Contact Us"
