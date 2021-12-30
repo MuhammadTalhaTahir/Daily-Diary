@@ -18,3 +18,7 @@ def intro():
 @app.route('/contact')
 def intro():
     return "Contact Us"
+
+@app.route('/contact2')
+def intro():
+    return "Contact Us2"
