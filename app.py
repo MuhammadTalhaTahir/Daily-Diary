@@ -9,5 +9,5 @@ def hello():
 
 @app.route('/talhas')
 def talha():
-    return "this is talhas route"
+    return "this is talhas rout"
     
