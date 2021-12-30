@@ -3,9 +3,9 @@ from flask import Flask,render_template
 app = Flask(__name__)
 
 
-@app.route('/')
-def hello():
-    return render_template("logintemp.html")
+@app.route('/<int:name>')
+def hello(name):
+    return str(name*name)
 
 
 if __name__ == "__main__":
