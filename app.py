@@ -1,24 +1,12 @@
-from flask import Flask
+from flask import Flask,render_template
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return render_template("logintemp.html")
 
-@app.route('/talhas')
-def talha():
-    return "this is talhas rout"
-    
-@app.route('/about')
-def intro():
-    return "This is us"
 
-@app.route('/contact')
-def intro():
-    return "Contact Us"
-
-@app.route('/contact2')
-def intro():
-    return "Contact Us2"
+if __name__ == "__main__":
+    app.run(debug=True)
