@@ -1,27 +1,19 @@
-from flask import Flask
+from logging import DEBUG
+
+from pymysql import connections
+import json
+from ModelClass import *
+from flask import Flask, request, jsonify,make_response
 
 app = Flask(__name__)
+@app.route('/users')
+def user_access():
+    connection = Model("localhost", "root", "1234", "dailydiary")
+    email = request.args.get('email')
+    password = request.args.get('pass')
+    user_data = connection.login(email,password)
+    print(user_data)
+    return jsonify(user_data)
 
-
-@app.route('/')
-def hello():
-    return 'Hello, World!'
-
-@app.route('/talhas')
-def talha():
-    return "this is talhas route"
-    
-@app.route('/about')
-def intro():
-    return "This is us"
-
-@app.route('/contact')
-def intro():
-    return "Contact Us"
-
-@app.route('/contact2')
-def intro():
-    return "Contact Us2"
-@app.route('/conatact2')
-def intrao():
-    return "Contact Us2"
+if __name__ == '__main__':
+    app.run(debug=True)
