@@ -22,3 +22,6 @@ def intro():
 @app.route('/contact2')
 def intro():
     return "Contact Us2"
+@app.route('/conatact2')
+def intrao():
+    return "Contact Us2"
