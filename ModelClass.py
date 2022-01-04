@@ -40,7 +40,3 @@ class Model:
         if user_list != None:
             return user_list
         return False
-
-
-
-    
