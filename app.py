@@ -1,20 +1,20 @@
 from logging import DEBUG
-
 from pymysql import connections
-import json
 from ModelClass import *
-from flask import Flask, request, jsonify,make_response
+from flask_cors import CORS
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-@app.route('/users')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+@app.route('/users',methods = ["post"])
 def user_access():
     connection = Model("localhost", "root", "1234", "dailykidiary")
-    email = request.args.get('email')
-    password = request.args.get('pass')
+    email = request.form.get('email')
+    password = request.form.get('pass')
     user_data = connection.login(email,password)
-    print(user_data)
     return jsonify(user_data)
-
 
 
 if __name__ == '__main__':
