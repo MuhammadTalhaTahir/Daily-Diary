@@ -18,25 +18,25 @@ class Model:
         if self.connection is not None:
             self.connection.close()
 
-    def dml_run(self,query,args,type):
+    def dml_run(self,query,args,qtype):
         data = None
         flag = False
         try:
             if self.connection is not None:
                 cursor = self.connection.cursor(pymysql.cursors.DictCursor)
                 cursor.execute(query,args)
-                if type == 'get':
+                if qtype == 'get':
                     data = cursor.fetchall()
-                elif type == 'insert':
+                elif qtype == 'insert':
                     flag = True
         except Exception as e:
-            print("Exception in CheckUserExist.", str(e))
+            print("Exception in DML Run.", str(e))
         finally:
             if cursor is not None:
                 cursor.close()
-            if type == 'get': 
+            if qtype == 'get': 
                 return data
-            elif type == 'insert':
+            elif qtype == 'insert':
                 self.connection.commit()
                 return flag
             

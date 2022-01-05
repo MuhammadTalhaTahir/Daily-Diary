@@ -20,12 +20,11 @@ def login_user():
     if len(user_data) > 0:
         session["email"] = user_data[0]['email']
         user_data[0]['user_status'] = True
-        return jsonify(user_data)
-    return jsonify(NULL)
+    return jsonify(user_data)
 
-@app.route('/register')
+@app.route('/register', methods=["POST"])
 def register_user():
-    connection = Model("localhost", "root", "1234", "dailydiary")
+    connection = Model("localhost", "root", "1234", "dailykidiary")
     now = datetime.now()
     new_user = dict()
     new_list = list()
@@ -33,22 +32,21 @@ def register_user():
     new_user["email"] = request.form.get('email')
     new_user["user_pass"] = request.form.get('pass')
     new_user["user_status"] = True
-    new_user["date_joined"] = now.strftime('%d-%m-%Y')
+    new_user["date_joined"] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user["dob"] = request.form.get('dob')
     new_user["gender"] = request.form.get('gen')
     new_user["location"] = request.form.get('loc')
     new_user["address"] = request.form.get('add')
-    new_user["profile_picture"] = request.form.get('img')
+    pimg = request.files['img']
+    new_user["profile_picture"] = f"userProfilePics\\{pimg.filename}"
     if connection.user_exist(new_user["email"]) is False:
         connection.register(new_user)
+        pimg.save(f"userProfilePics\\{pimg.filename}")
         session["email"] = new_user['email']
         new_list.append(new_user)
         return jsonify(new_list)
-    return jsonify(NULL)
+    return jsonify(list())
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
-   
-    
     
