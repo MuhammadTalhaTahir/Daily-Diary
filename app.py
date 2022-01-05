@@ -5,6 +5,7 @@ from ModelClass import *
 from flask_cors import CORS
 from datetime import datetime
 from flask import Flask, request, jsonify, session
+from flask import send_file
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -13,18 +14,20 @@ app.secret_key = 'dailykidiary'
 
 @app.route('/login',methods = ["post"])
 def login_user():
-    connection = Model("localhost", "root", "1234", "dailykidiary")
+    connection = Model("localhost", "root", "1234", "dailydiary")
     email = request.form.get('email')
     password = request.form.get('pass')
     user_data = connection.login(email,password)
     if len(user_data) > 0:
         session["email"] = user_data[0]['email']
         user_data[0]['user_status'] = True
+        user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
     return jsonify(user_data)
+
 
 @app.route('/register', methods=["POST"])
 def register_user():
-    connection = Model("localhost", "root", "1234", "dailykidiary")
+    connection = Model("localhost", "root", "1234", "dailydiary")
     now = datetime.now()
     new_user = dict()
     new_list = list()
@@ -46,6 +49,21 @@ def register_user():
         new_list.append(new_user)
         return jsonify(new_list)
     return jsonify(list())
+
+
+@app.route('/logout')
+def logout_user():
+    session.pop("email",None)
+    return jsonify(list())
+
+@app.route('/profile_picture/<string:email>')
+def profile_picture(email):
+    connection = Model("localhost", "root", "1234", "dailydiary")
+    path = connection.profile_picture(email)
+    if path != "":
+        return send_file(path)
+    return jsonify(list())
+
 
 if __name__ == '__main__':
     app.run(debug=True)

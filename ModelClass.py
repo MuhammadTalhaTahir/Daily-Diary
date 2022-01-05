@@ -11,6 +11,7 @@ class Model:
         try:
             self.connection = pymysql.connect(host=self.host, user=self.user, password=self.password,
                                               database=self.database)
+            #self.connection.autocommit(True)
         except Exception as e:
             print("There is error in connection.", str(e))
 
@@ -45,7 +46,13 @@ class Model:
         args = (email,password)
         user_list = None
         user_list = self.dml_run(query,args,'get')
-        return user_list if (bool(user_list)) else False
+        return user_list if (bool(user_list)) else list()
+    
+    def profile_picture(self, email):
+        query = "select profile_picture from users where email = %s"
+        args = email
+        picture_path = self.dml_run(query,args,"get")
+        return picture_path[0]["profile_picture"] if(picture_path!=None) else ""
 
     def user_exist(self, email):
         query = "select * from users where email = %s"
