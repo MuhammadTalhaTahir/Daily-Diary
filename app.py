@@ -6,15 +6,19 @@ from flask_cors import CORS
 from datetime import datetime
 from flask import Flask, request, jsonify, session
 from flask import send_file
+import json
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = 'dailykidiary'
 
+with open('config.json') as jsondata:
+    config = json.load(jsondata)
+
 @app.route('/login',methods = ["post"])
 def login_user():
-    connection = Model("localhost", "root", "1234", "dailydiary")
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
     email = request.form.get('email')
     password = request.form.get('pass')
     user_data = connection.login(email,password)
@@ -27,7 +31,7 @@ def login_user():
 
 @app.route('/register', methods=["POST"])
 def register_user():
-    connection = Model("localhost", "root", "1234", "dailydiary")
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
     now = datetime.now()
     new_user = dict()
     new_list = list()
@@ -58,7 +62,7 @@ def logout_user():
 
 @app.route('/profile_picture/<string:email>')
 def profile_picture(email):
-    connection = Model("localhost", "root", "1234", "dailydiary")
+    connection = Model(config["host"], config['user'], config['password'], config['database'])
     path = connection.profile_picture(email)
     if path != "":
         return send_file(path)
