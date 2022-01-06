@@ -28,6 +28,24 @@ def login_user():
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
     return jsonify(user_data)
 
+@app.route('/user_diary',methods = ["post"])
+def user_diary():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    new_user = dict()
+    now = datetime.now()
+    new_user['email'] = session["email"]
+    new_user['content_text'] = request.form.get('pageContent')
+    img_vid = request.files['file']
+    new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
+    new_user['visible_status'] = True
+    new_user['content_video_pic'] = f"userProfilePics\\{img_vid.filename}"
+    success = connection.add_page(new_user)
+    if success:
+        img_vid.save(f"user_content\\{img_vid.filename}")
+        page_list = connection.get_pages(session["email"])
+        return jsonify(page_list) if (bool(page_list)) else jsonify(list())
+    return jsonify()
+
 
 @app.route('/register', methods=["POST"])
 def register_user():
@@ -51,6 +69,8 @@ def register_user():
         pimg.save(f"userProfilePics\\{pimg.filename}")
         session["email"] = new_user['email']
         new_user['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{new_user["email"]}')
+        diary = {"email":new_user["email"], "type":"public"}
+        connection.add_diary(diary)
         new_list.append(new_user)
         return jsonify(new_list)
     return jsonify(list())

@@ -68,3 +68,31 @@ class Model:
         new_user["profile_picture"])
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
+    
+    def add_diary(self, new_user):
+        query = 'INSERT INTO diaries VALUES (%s,%s,%s)'
+        args = (new_user["email"],0,new_user["type"])
+        success = self.dml_run(query,args,'insert')
+        return True if (success == True) else False
+    
+    def add_page(self, new_user):
+        query = 'select page_count,diary_id from diaries where email = %s'
+        args = new_user["email"]
+        data = self.dml_run(query,args,'get')
+        query = 'INSERT INTO pages VALUES (%s,%s,%s,%s,%s,%s)'
+        args = (new_user["email"],data[0]["diary_id"],new_user["page_date"],new_user["visible_status"],
+        new_user["content_text"],new_user["content_video_pic"])
+        success = self.dml_run(query,args,'insert')
+        if success:
+            query = 'update diaries set page_count = %s where diary_id = %s'
+            args = ((data[0]["page_count"]+1),data[0]["diary_id"])
+            success1 = self.dml_run(query,args,'insert')
+            return True if (success1 == True) else False
+        return False
+
+    def get_pages(self, new_user):
+        query = 'select * from pages where email = %s'
+        args = new_user
+        page_list = None
+        page_list = self.dml_run(query,args,'get')
+        return page_list if (bool(page_list)) else list()
