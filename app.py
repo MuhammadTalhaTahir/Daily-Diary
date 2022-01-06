@@ -33,16 +33,16 @@ def user_diary():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     new_user = dict()
     now = datetime.now()
-    new_user['email'] = session["email"]
+    new_user['email'] = request.form.get("email")
     new_user['content_text'] = request.form.get('pageContent')
     img_vid = request.files['file']
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user['visible_status'] = True
-    new_user['content_video_pic'] = f"userProfilePics\\{img_vid.filename}"
+    new_user['content_video_pic'] = f"user_content\\{img_vid.filename}"
     success = connection.add_page(new_user)
     if success:
         img_vid.save(f"user_content\\{img_vid.filename}")
-        page_list = connection.get_pages(session["email"])
+        page_list = connection.get_pages(request.form.get("email"))
         return jsonify(page_list) if (bool(page_list)) else jsonify(list())
     return jsonify()
 
@@ -59,7 +59,7 @@ def register_user():
     new_user["user_status"] = True
     new_user["date_joined"] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user["dob"] = request.form.get('dob')
-    new_user["gender"] = request.form.get('gen')
+    new_user["gender"] = request.form.get('gender')
     new_user["location"] = request.form.get('loc')
     new_user["address"] = request.form.get('add')
     pimg = request.files['img']
