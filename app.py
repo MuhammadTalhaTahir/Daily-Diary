@@ -50,6 +50,7 @@ def register_user():
         connection.register(new_user)
         pimg.save(f"userProfilePics\\{pimg.filename}")
         session["email"] = new_user['email']
+        new_user['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{new_user["email"]}')
         new_list.append(new_user)
         return jsonify(new_list)
     return jsonify(list())
