@@ -34,18 +34,19 @@ def user_diary():
     new_user = dict()
     img_vid = None
     now = datetime.now()
+    new_user['content_video_pic'] = " "
     new_user['email'] = request.form.get("email")
     new_user['content_text'] = request.form.get('pageContent')
-    if request.form.get('isfile')==True:
+    if request.form.get('isFile')=="true":
         img_vid = request.files['file']
         new_user['content_video_pic'] = f"user_content\\{img_vid.filename}"
-    else:
-        new_user['content_video_pic'] = ""
+    elif request.form.get('isFile')=="false":
+        new_user['content_video_pic'] = "NO-PIC"
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user['visible_status'] = True
     success = connection.add_page(new_user)
     if success:
-        if request.form.get('isfile')==True:
+        if request.form.get('isFile')=="true":
             img_vid.save(f"user_content\\{img_vid.filename}")
         page_list = connection.get_pages(request.form.get("email"))
         return jsonify(page_list) if (bool(page_list)) else jsonify(list())
