@@ -28,7 +28,9 @@ def login_user():
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
         page_list = connection.get_pages(request.form.get("email"))
         if (bool(page_list)): 
-            page_list[0]["content_video_pic"] = send_file(page_list[0]["content_video_pic"])
+            for i in range(len(page_list)):
+                if page_list[i]["content_video_pic"] != "NO-PIC":
+                    page_list[i]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{page_list[i]["content_video_pic"]}')
             user_data.extend(page_list)
     return jsonify(user_data)
 
@@ -36,14 +38,13 @@ def login_user():
 def user_diary():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     new_user = dict()
-    img_vid = None
     now = datetime.now()
     new_user['content_video_pic'] = " "
     new_user['email'] = request.form.get("email")
     new_user['content_text'] = request.form.get('pageContent')
     if request.form.get('isFile')=="true":
         img_vid = request.files['file']
-        new_user['content_video_pic'] = f"user_content\\{img_vid.filename}"
+        new_user['content_video_pic'] = f"{img_vid.filename}"
     elif request.form.get('isFile')=="false":
         new_user['content_video_pic'] = "NO-PIC"
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -53,7 +54,9 @@ def user_diary():
         if request.form.get('isFile')=="true":
             img_vid.save(f"user_content\\{img_vid.filename}")
         page_list = connection.get_pages(request.form.get("email"))
-        page_list[0]["content_video_pic"] = send_file(page_list[0]["content_video_pic"])
+        for i in range(len(page_list)):
+                if page_list[i]["content_video_pic"] != "NO-PIC":
+                    page_list[i]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{page_list[i]["content_video_pic"]}')
         return jsonify(page_list) if (bool(page_list)) else jsonify(list())
     return jsonify()
 
@@ -86,6 +89,10 @@ def register_user():
         return jsonify(new_list)
     return jsonify(list())
 
+@app.route('/content_pic/<string:path>')
+def getContentPic(path):
+    path = f'user_content\{path}'
+    return send_file(path)
 
 @app.route('/logout')
 def logout_user():
@@ -97,7 +104,7 @@ def profile_picture(email):
     connection = Model(config["host"], config['user'], config['password'], config['database'])
     path = connection.profile_picture(email)
     if path != "":
-        return send_file(path)
+        return send_file(path)  #\userProfilePics\name.jpg
     return jsonify(list())
 
 if __name__ == '__main__':
