@@ -28,6 +28,7 @@ def login_user():
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
         page_list = connection.get_pages(request.form.get("email"))
         if (bool(page_list)): 
+            page_list[0]["content_video_pic"] = send_file(page_list[0]["content_video_pic"])
             user_data.extend(page_list)
     return jsonify(user_data)
 
@@ -52,6 +53,7 @@ def user_diary():
         if request.form.get('isFile')=="true":
             img_vid.save(f"user_content\\{img_vid.filename}")
         page_list = connection.get_pages(request.form.get("email"))
+        page_list[0]["content_video_pic"] = send_file(page_list[0]["content_video_pic"])
         return jsonify(page_list) if (bool(page_list)) else jsonify(list())
     return jsonify()
 
@@ -97,7 +99,6 @@ def profile_picture(email):
     if path != "":
         return send_file(path)
     return jsonify(list())
-
 
 if __name__ == '__main__':
     app.run(debug=True)

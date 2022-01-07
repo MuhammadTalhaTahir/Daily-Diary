@@ -1,5 +1,6 @@
 from ViewClasses import *
-import pymysql 
+import pymysql
+from datetime import datetime 
 import pymysql.cursors
 class Model:
     def __init__(self, host, user, password, database):
@@ -95,3 +96,18 @@ class Model:
         page_list = None
         page_list = self.dml_run(query,args,'get')
         return page_list if (bool(page_list)) else list()
+    
+    def get_explore_pages(self,new_user):
+        query = 'select friend_email from followers where email = %s'
+        args = new_user
+        friend_list = list()
+        friend_email = self.dml_run(query,args,'get')
+        for i in friend_email[0].values():
+            query = 'select * from users where email = %s'
+            args = i
+            data = self.dml_run(query,args,'get')
+            query = 'select * from pages where email = %s order by page_date DESC'
+            args = i 
+            Ulist = self.dml_run(query,args,'get')
+            friend_list.append(data+Ulist)
+        return friend_list
