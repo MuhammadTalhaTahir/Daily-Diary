@@ -26,6 +26,9 @@ def login_user():
         session["email"] = user_data[0]['email']
         user_data[0]['user_status'] = True
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
+        page_list = connection.get_pages(request.form.get("email"))
+        if (bool(page_list)): 
+            user_data.extend(page_list)
     return jsonify(user_data)
 
 @app.route('/user_diary',methods = ["post"])
