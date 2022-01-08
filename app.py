@@ -45,8 +45,14 @@ def user_diary():
     if request.form.get('isFile')=="true":
         img_vid = request.files['file']
         new_user['content_video_pic'] = f"{img_vid.filename}"
+        print(request.form.get("isvideo"))
+        if request.form.get("isvideo") == "true":
+            new_user['is_content_video'] = True
+        elif request.form.get("isvideo") == "false":
+            new_user['is_content_video'] = False
     elif request.form.get('isFile')=="false":
         new_user['content_video_pic'] = "NO-PIC"
+        new_user['is_content_video'] = False
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user['visible_status'] = True
     success = connection.add_page(new_user)

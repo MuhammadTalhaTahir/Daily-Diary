@@ -80,9 +80,11 @@ class Model:
         query = 'select page_count,diary_id from diaries where email = %s'
         args = new_user["email"]
         data = self.dml_run(query,args,'get')
-        query = 'INSERT INTO pages(email,diary_id, page_date, visible_status, content_text,content_video_pic) VALUES (%s,%s,%s,%s,%s,%s)'
-        args = (new_user["email"],data[0]["diary_id"],new_user["page_date"],new_user["visible_status"],new_user["content_text"],new_user["content_video_pic"])
+        query = 'INSERT INTO pages(email,diary_id, page_date, visible_status, content_text,content_video_pic, is_content_video) VALUES (%s,%s,%s,%s,%s,%s,%s)'
+        args = (new_user["email"],data[0]["diary_id"],new_user["page_date"],new_user["visible_status"],new_user["content_text"],new_user["content_video_pic"], new_user['is_content_video'])
+        print("IS CONTENT VIDEO: ",new_user["is_content_video"])
         success = self.dml_run(query,args,'insert')
+        print(success, 'Something went wrong here')
         if success:
             query = 'update diaries set page_count = %s where diary_id = %s'
             args = ((data[0]["page_count"]+1),data[0]["diary_id"])
