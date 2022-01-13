@@ -59,7 +59,7 @@ def user_diary():
         new_user['content_video_pic'] = "NO-PIC"
         new_user['is_content_video'] = False
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
-    new_user['visible_status'] = True
+    new_user['visible_status'] = request.form.get("isPublic")
     success = connection.add_page(new_user)
     if success:
         if request.form.get('isFile')=="true":
