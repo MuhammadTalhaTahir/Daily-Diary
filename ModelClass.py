@@ -111,6 +111,6 @@ class Model:
         for i in Ulist:
             for j in public_email:
                 if i['email'] == j['email']:
-                    i['profile_picture'] = j['profile_picture']
+                    i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{j["email"]}')
                     i['username'] = j['username']
         return Ulist
