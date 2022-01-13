@@ -26,13 +26,19 @@ def login_user():
         session["email"] = user_data[0]['email']
         user_data[0]['user_status'] = True
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
-        page_list = connection.get_pages(request.form.get("email"))
-        if (bool(page_list)): 
-            for i in range(len(page_list)):
+        return jsonify(user_data)
+    return jsonify(list())
+
+@app.route('/user_pages')
+def user_pages():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    page_list = connection.get_pages(session['email'])
+    if (bool(page_list)):
+        for i in range(len(page_list)):
                 if page_list[i]["content_video_pic"] != "NO-PIC":
                     page_list[i]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{page_list[i]["content_video_pic"]}')
-            user_data.extend(page_list)
-    return jsonify(user_data)
+        return jsonify(page_list)
+    return jsonify(list())
 
 @app.route('/user_diary',methods = ["post"])
 def user_diary():
@@ -64,7 +70,7 @@ def user_diary():
                 if page_list[i]["content_video_pic"] != "NO-PIC":
                     page_list[i]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{page_list[i]["content_video_pic"]}')
         return jsonify(page_list) if (bool(page_list)) else jsonify(list())
-    return jsonify()
+    return jsonify(list())
 
 
 @app.route('/register', methods=["POST"])
@@ -72,7 +78,6 @@ def register_user():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     now = datetime.now()
     new_user = dict()
-    new_list = list()
     new_user["username"] = request.form.get("fname") + " " + request.form.get("lname")
     new_user["email"] = request.form.get('email')
     new_user["user_pass"] = request.form.get('pass')
@@ -87,12 +92,9 @@ def register_user():
     if connection.user_exist(new_user["email"]) is False:
         connection.register(new_user)
         pimg.save(f"userProfilePics\\{pimg.filename}")
-        session["email"] = new_user['email']
-        new_user['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{new_user["email"]}')
         diary = {"email":new_user["email"], "type":"public"}
         connection.add_diary(diary)
-        new_list.append(new_user)
-        return jsonify(new_list)
+        return jsonify(list(1))
     return jsonify(list())
 
 @app.route('/content_pic/<string:path>')
@@ -102,7 +104,7 @@ def getContentPic(path):
 
 @app.route('/logout')
 def logout_user():
-    session.pop("email",None)
+    session.clear()
     return jsonify(list())
 
 @app.route('/profile_picture/<string:email>')
