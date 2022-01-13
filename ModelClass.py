@@ -100,21 +100,17 @@ class Model:
         return page_list if (bool(page_list)) else list()
     
     def get_explore_pages(self,new_user):
-        query = 'select email from users where email != %s'
+        query = 'select email,username,profile_picture from users where email != %s'
         args = new_user
-        public_list = list()
         public_email = self.dml_run(query,args,'get')
-        print("public emails: ", public_email)
-        for i in public_email:
-            print(i)
-            query = 'select * from users where email = %s'
-            args = i["email"]
-            data = self.dml_run(query,args,'get')
-            print("data", data)
 
-            query = 'select * from pages where email = %s and visible_status=%s order by page_date DESC'
-            args = (i["email"],True) 
-            Ulist = self.dml_run(query,args,'get')
-            print("ulist: ", Ulist)
-            public_list.append(data+Ulist)
-        return public_list
+        query = 'select * from pages where email != %s and visible_status=%s order by page_date DESC'
+        args = (new_user,True) 
+        Ulist = self.dml_run(query,args,'get')
+
+        for i in Ulist:
+            for j in public_email:
+                if i['email'] == j['email']:
+                    i['profile_picture'] = j['profile_picture']
+                    i['username'] = j['username']
+        return Ulist
