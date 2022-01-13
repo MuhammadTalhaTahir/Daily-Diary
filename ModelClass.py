@@ -100,16 +100,16 @@ class Model:
         return page_list if (bool(page_list)) else list()
     
     def get_explore_pages(self,new_user):
-        query = 'select friend_email from followers where email = %s'
+        query = 'select email from users where email != %s'
         args = new_user
-        friend_list = list()
-        friend_email = self.dml_run(query,args,'get')
-        for i in friend_email[0].values():
+        public_list = list()
+        public_email = self.dml_run(query,args,'get')
+        for i in public_email[0].values():
             query = 'select * from users where email = %s'
             args = i
             data = self.dml_run(query,args,'get')
-            query = 'select * from pages where email = %s order by page_date DESC'
-            args = i 
+            query = 'select * from pages where email = %s and visible_status=%s order by page_date DESC'
+            args = (i,True) 
             Ulist = self.dml_run(query,args,'get')
-            friend_list.append(data+Ulist)
-        return friend_list
+            public_list.append(data+Ulist)
+        return public_list

@@ -39,6 +39,19 @@ def user_pages():
         return jsonify(page_list)
     return jsonify(list())
 
+@app.route('/public_pages',methods = ["post"])
+def public_pages():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    page_list = connection.get_explore_pages(request.form.get('email'))
+    if (page_list):
+        for i in page_list:
+            if(bool(i)):
+                for j in range(len(i)):
+                    if i[j]["content_video_pic"] != "NO-PIC":
+                        i[j]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{i[j]["content_video_pic"]}')
+        return jsonify(page_list)
+    return jsonify(list())
+
 @app.route('/user_diary',methods = ["post"])
 def user_diary():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
@@ -59,7 +72,10 @@ def user_diary():
         new_user['content_video_pic'] = "NO-PIC"
         new_user['is_content_video'] = False
     new_user['page_date'] = now.strftime('%Y-%m-%d %H:%M:%S')
-    new_user['visible_status'] = request.form.get("isPublic")
+    if request.form.get("isPublic") == "true":
+        new_user['visible_status'] = True
+    else:
+        new_user['visible_status'] = False
     success = connection.add_page(new_user)
     if success:
         if request.form.get('isFile')=="true":
