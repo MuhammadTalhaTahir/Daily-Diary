@@ -23,16 +23,15 @@ def login_user():
     password = request.form.get('pass')
     user_data = connection.login(email,password)
     if len(user_data) > 0:
-        session["email"] = user_data[0]['email']
         user_data[0]['user_status'] = True
         user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
         return jsonify(user_data)
     return jsonify(list())
 
-@app.route('/user_pages')
+@app.route('/user_pages',methods = ["post"])
 def user_pages():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
-    page_list = connection.get_pages(session['email'])
+    page_list = connection.get_pages(request.form.get('email'))
     if (bool(page_list)):
         for i in range(len(page_list)):
                 if page_list[i]["content_video_pic"] != "NO-PIC":
@@ -104,7 +103,6 @@ def getContentPic(path):
 
 @app.route('/logout')
 def logout_user():
-    session.clear()
     return jsonify(list())
 
 @app.route('/profile_picture/<string:email>')
