@@ -104,12 +104,17 @@ class Model:
         args = new_user
         public_list = list()
         public_email = self.dml_run(query,args,'get')
-        for i in public_email[0].values():
+        print("public emails: ", public_email)
+        for i in public_email:
+            print(i)
             query = 'select * from users where email = %s'
-            args = i
+            args = i["email"]
             data = self.dml_run(query,args,'get')
+            print("data", data)
+
             query = 'select * from pages where email = %s and visible_status=%s order by page_date DESC'
-            args = (i,True) 
+            args = (i["email"],True) 
             Ulist = self.dml_run(query,args,'get')
+            print("ulist: ", Ulist)
             public_list.append(data+Ulist)
         return public_list

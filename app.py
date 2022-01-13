@@ -47,8 +47,9 @@ def public_pages():
         for i in page_list:
             if(bool(i)):
                 for j in range(len(i)):
-                    if i[j]["content_video_pic"] != "NO-PIC":
-                        i[j]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{i[j]["content_video_pic"]}')
+                    if j != 0:
+                        if i[j]["content_video_pic"] != "NO-PIC":
+                            i[j]["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{i[j]["content_video_pic"]}')
         return jsonify(page_list)
     return jsonify(list())
 
@@ -63,7 +64,6 @@ def user_diary():
     if request.form.get('isFile')=="true":
         img_vid = request.files['file']
         new_user['content_video_pic'] = f"{img_vid.filename}"
-        print(request.form.get("isvideo"))
         if request.form.get("isvideo") == "true":
             new_user['is_content_video'] = True
         elif request.form.get("isvideo") == "false":
@@ -109,7 +109,7 @@ def register_user():
         pimg.save(f"userProfilePics\\{pimg.filename}")
         diary = {"email":new_user["email"], "type":"public"}
         connection.add_diary(diary)
-        return jsonify(list(1))
+        return jsonify([1])
     return jsonify(list())
 
 @app.route('/content_pic/<string:path>')
