@@ -7,7 +7,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, session
 from flask import send_file
 import json
-
+import random
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -48,7 +48,7 @@ def public_pages():
             if(bool(i)):
                 if i["content_video_pic"] != "NO-PIC":
                     i["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{i["content_video_pic"]}')
-        return jsonify(page_list)
+        return jsonify(random.shuffle(page_list))
     return jsonify(list())
 
 @app.route('/user_diary',methods = ["post"])
