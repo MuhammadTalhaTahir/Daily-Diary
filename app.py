@@ -1,3 +1,4 @@
+from code import interact
 from logging import DEBUG
 from sys import modules
 from pymysql import NULL, connections
@@ -111,22 +112,51 @@ def register_user():
         return jsonify([1])
     return jsonify(list())
 
-@app.route('/content_pic/<string:path>')
-def getContentPic(path):
-    path = f'user_content\{path}'
-    return send_file(path)
+@app.route('/search', methods=["POST"])
+def search_user():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    name = request.form.get("name")
+    users = connection.search_user(name)
+    return jsonify(users) if (bool(users)) else jsonify(list())
 
-@app.route('/logout')
-def logout_user():
-    return jsonify(list())
+@app.route('/follow', methods=["POST"])
+def search_user():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    user = request.form.get("email")
+    followed_user = request.form.get("femail")
+    flag = connection.search_user(user,followed_user)
+    return jsonify([1]) if (flag) else jsonify(list())
+
+@app.route('/get_followers', methods=["POST"])
+def search_user():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    user = request.form.get("email")
+    followers = connection.get_followers(user)
+    return jsonify(followers) if (followers) else jsonify(list())
+
+@app.route('/liked', methods=["POST"])
+def liked_page():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    now = datetime.now()
+    interaction = dict()
+    interaction["email"] = request.form.get("email")
+    interaction["page_id"] = request.form.get("page_id")
+    interaction["date"] = now.strftime('%Y-%m-%d %H:%M:%S')
+    followers = connection.get_followers(interaction)
+    return jsonify(followers) if (followers) else jsonify(list())
 
 @app.route('/profile_picture/<string:email>')
 def profile_picture(email):
     connection = Model(config["host"], config['user'], config['password'], config['database'])
     path = connection.profile_picture(email)
     if path != "":
-        return send_file(path)  #\userProfilePics\name.jpg
+        return send_file(path)  
     return jsonify(list())
+
+@app.route('/content_pic/<string:path>')
+def getContentPic(path):
+    path = f'user_content\{path}'
+    return send_file(path)
 
 if __name__ == '__main__':
     app.run(debug=True)

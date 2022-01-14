@@ -103,14 +103,48 @@ class Model:
         query = 'select email,username,profile_picture from users where email != %s'
         args = new_user
         public_email = self.dml_run(query,args,'get')
-
         query = 'select * from pages where email != %s and visible_status=%s order by page_date DESC'
         args = (new_user,True) 
         Ulist = self.dml_run(query,args,'get')
-
+        query = 'select * from page_interaction where follower_email = %s'
+        args = (new_user) 
+        likeList = self.dml_run(query,args,'get')
         for i in Ulist:
             for j in public_email:
                 if i['email'] == j['email']:
                     i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{j["email"]}')
                     i['username'] = j['username']
+            for j in likeList:
+                if i['page_id'] == j['page_id']:
+                    i['liked'] = True
+                    break
+                else:
+                    i['liked'] = False
         return Ulist
+    
+    def search_user(self,name):
+        query = 'select * from users where username like %s'
+        args = ('%'+name+'%')
+        public_users = self.dml_run(query,args,'get')
+        return public_users if (bool(public_users)) else list()
+
+    def add_follower(self,user,followed_user):
+        query = 'INSERT INTO followers(email,followed_user) VALUES (%s,%s)'
+        args = (user,followed_user)
+        success = self.dml_run(query,args,'insert')
+        return True if (success == True) else False
+    
+    def get_followers(self,user):
+        query = 'select email from followers where followed_user = %s'
+        args = (user)
+        followers = self.dml_run(query,args,'get')
+        return followers if (bool(followers)) else list()
+    
+    def set_like(self,interact):
+        query = 'select MAX(like_count) AS "like_count" from %s'
+        args = "page_interaction"
+        count = self.dml_run(query,args,'get')
+        query = 'INSERT INTO page_interaction(follower_email,page_id,interaction_date,like_count) VALUES (%s,%s,%s,%s)'
+        args = (interact["email"], interact["page_id"], interact["date"], count[0]["like_count"]+1)
+        success = self.dml_run(query,args,'insert')
+        return True if (success == True) else False
