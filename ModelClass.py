@@ -110,6 +110,13 @@ class Model:
         args = (new_user) 
         likeList = self.dml_run(query,args,'get')
         for i in Ulist:
+            query = 'select MAX(like_count) AS "like_count" from page_interaction where page_id = %s '
+            args = i["page_id"]
+            count = self.dml_run(query,args,'get')
+            if bool(count[0]["like_count"]):
+                i['count'] = count[0]["like_count"]
+            else:
+                i['count'] = 0
             for j in public_email:
                 if i['email'] == j['email']:
                     i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{j["email"]}')
