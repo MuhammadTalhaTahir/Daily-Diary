@@ -142,7 +142,7 @@ def liked_page():
     interaction["email"] = request.form.get("email")
     interaction["page_id"] = request.form.get("page_id")
     interaction["date"] = now.strftime('%Y-%m-%d %H:%M:%S')
-    followers = connection.get_followers(interaction)
+    followers = connection.set_like(interaction)
     return jsonify(followers) if (followers) else jsonify(list())
 
 @app.route('/profile_picture/<string:email>')
