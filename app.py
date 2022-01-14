@@ -120,7 +120,7 @@ def search_user():
     return jsonify(users) if (bool(users)) else jsonify(list())
 
 @app.route('/follow', methods=["POST"])
-def search_user():
+def follow_user():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     user = request.form.get("email")
     followed_user = request.form.get("femail")
@@ -128,7 +128,7 @@ def search_user():
     return jsonify([1]) if (flag) else jsonify(list())
 
 @app.route('/get_followers', methods=["POST"])
-def search_user():
+def get_followers():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     user = request.form.get("email")
     followers = connection.get_followers(user)
@@ -143,7 +143,7 @@ def liked_page():
     interaction["page_id"] = request.form.get("page_id")
     interaction["date"] = now.strftime('%Y-%m-%d %H:%M:%S')
     followers = connection.set_like(interaction)
-    return jsonify(followers) if (followers) else jsonify(list())
+    return jsonify([1]) if (followers) else jsonify(list())
 
 @app.route('/profile_picture/<string:email>')
 def profile_picture(email):

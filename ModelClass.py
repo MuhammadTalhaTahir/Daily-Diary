@@ -114,12 +114,13 @@ class Model:
                 if i['email'] == j['email']:
                     i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{j["email"]}')
                     i['username'] = j['username']
-            for j in likeList:
-                if i['page_id'] == j['page_id']:
-                    i['liked'] = True
-                    break
-                else:
-                    i['liked'] = False
+            if bool(likeList):
+                for j in likeList:
+                    if i['page_id'] == j['page_id']:
+                        i['liked'] = True
+                        break
+                    else:
+                        i['liked'] = False
         return Ulist
     
     def search_user(self,name):
@@ -141,10 +142,16 @@ class Model:
         return followers if (bool(followers)) else list()
     
     def set_like(self,interact):
-        query = 'select MAX(like_count) AS "like_count" from %s'
-        args = "page_interaction"
+        query = 'select MAX(like_count) AS "like_count" from page_interaction where page_id = %s '
+        args = interact["page_id"]
         count = self.dml_run(query,args,'get')
+        print(type(count), count)
+        number = 0
+        if bool(count[0]["like_count"]):
+            number = count[0]["like_count"] + 1
+        else:
+            number = 1
         query = 'INSERT INTO page_interaction(follower_email,page_id,interaction_date,like_count) VALUES (%s,%s,%s,%s)'
-        args = (interact["email"], interact["page_id"], interact["date"], count[0]["like_count"]+1)
+        args = (interact["email"], interact["page_id"], interact["date"], number)
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
