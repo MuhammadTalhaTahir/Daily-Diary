@@ -187,7 +187,7 @@ class Model:
         args = 'email'
         flag = None
         count = self.dml_run(query,args,'get')
-        if bool(count) and count[0]["count"]>=500:
+        if bool(count) and count[0]["count"]>=3:
             query = 'delete from chat'
             args = None
             success_delete = self.dml_run(query,args,'insert')
@@ -210,9 +210,9 @@ class Model:
         args = None
         messages = self.dml_run(query,args,'get')
         actual_list = list()
-        sub_dict = dict()
         element = {"currentUser":None, "message":None}
         for i in messages:
+            sub_dict = dict()
             sub_dict["email"] = i["email"]
             sub_dict["username"] = i["username"]
             sub_dict["profile_picture"] = i["profile_picture"]
