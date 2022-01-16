@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_socketio import SocketIO,emit
+from flask_socketio import SocketIO,emit,send
 from ModelClass import *
 import json
 app = Flask(__name__)
@@ -26,7 +26,7 @@ def getText(data):
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     connection.update_chat(data)
     newData = connection.get_chat()
-    emit("recieveText", newData, broadcast=True)
+    send(newData, broadcast=True)
 
 
 if __name__ == '__main__':
