@@ -134,6 +134,9 @@ class Model:
         query = 'select * from users where username like %s'
         args = ('%'+name+'%')
         public_users = self.dml_run(query,args,'get')
+        if bool(public_users):
+            for i in public_users:
+                i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{i["email"]}')
         return public_users if (bool(public_users)) else list()
 
     def add_follower(self,user,followed_user):
