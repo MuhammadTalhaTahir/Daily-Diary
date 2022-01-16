@@ -140,10 +140,23 @@ class Model:
         return public_users if (bool(public_users)) else list()
 
     def add_follower(self,user,followed_user):
-        query = 'INSERT INTO followers(email,followed_user) VALUES (%s,%s)'
-        args = (user,followed_user)
-        success = self.dml_run(query,args,'insert')
-        return True if (success == True) else False
+        query = 'select * from followes where email = %s and followed_user = %s'
+        args = (user, followed_user)
+        flag = None
+        record = self.dml_run(query,args,'get')
+        if bool(record[0]):
+            query = 'delete from followes where email = %s and followed_user = %s'
+            args = (user, followed_user)
+            success = self.dml_run(query,args,'insert')
+            if success == True:
+                flag = 1 
+        else:
+            query = 'INSERT INTO followers(email,followed_user) VALUES (%s,%s)'
+            args = (user,followed_user)
+            success = self.dml_run(query,args,'insert')
+            if success == True:
+                flag = 0 
+        return flag
     
     def get_followers(self,user):
         query = 'select email from followers where followed_user = %s'
@@ -158,7 +171,6 @@ class Model:
         query = 'select MAX(like_count) AS "like_count" from page_interaction where page_id = %s '
         args = interact["page_id"]
         count = self.dml_run(query,args,'get')
-        print(type(count), count)
         number = 0
         if bool(count[0]["like_count"]):
             number = count[0]["like_count"] + 1
@@ -168,3 +180,34 @@ class Model:
         args = (interact["email"], interact["page_id"], interact["date"], number)
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
+    
+    def get_follower_pages(self,new_user):
+        query = 'select email,username,profile_picture from users where email in (select followed_user from followers where email = %s)'
+        args = new_user
+        public_email = self.dml_run(query,args,'get')
+        query = 'select * from pages where email in (select followed_user from followers where email = %s) and visible_status=%s order by page_date DESC'
+        args = (new_user,True) 
+        Ulist = self.dml_run(query,args,'get')
+        query = 'select * from page_interaction where follower_email = %s'
+        args = (new_user) 
+        likeList = self.dml_run(query,args,'get')
+        for i in Ulist:
+            query = 'select MAX(like_count) AS "like_count" from page_interaction where page_id = %s '
+            args = i["page_id"]
+            count = self.dml_run(query,args,'get')
+            if bool(count[0]["like_count"]):
+                i['count'] = count[0]["like_count"]
+            else:
+                i['count'] = 0
+            for j in public_email:
+                if i['email'] == j['email']:
+                    i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{j["email"]}')
+                    i['username'] = j['username']
+            if bool(likeList):
+                for j in likeList:
+                    if i['page_id'] == j['page_id']:
+                        i['liked'] = True
+                        break
+                    else:
+                        i['liked'] = False
+        return Ulist
