@@ -141,12 +141,12 @@ class Model:
         return public_users if (bool(public_users)) else list()
 
     def add_follower(self,user,followed_user):
-        query = 'select * from followes where email = %s and followed_user = %s'
+        query = 'select * from followers where email = %s and followed_user = %s'
         args = (user, followed_user)
         record = self.dml_run(query,args,'get')
         flag = None
-        if bool(record[0]):
-            query = 'delete from followes where email = %s and followed_user = %s'
+        if bool(record):
+            query = 'delete from followers where email = %s and followed_user = %s'
             args = (user, followed_user)
             success = self.dml_run(query,args,'insert')
             if success == True:
