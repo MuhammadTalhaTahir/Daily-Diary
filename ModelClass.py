@@ -146,6 +146,9 @@ class Model:
         query = 'select email from followers where followed_user = %s'
         args = (user)
         followers = self.dml_run(query,args,'get')
+        if bool(followers):
+            for i in followers:
+                i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{i["email"]}')
         return followers if (bool(followers)) else list()
     
     def set_like(self,interact):

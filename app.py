@@ -124,7 +124,7 @@ def follow_user():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     user = request.form.get("email")
     followed_user = request.form.get("femail")
-    flag = connection.search_user(user,followed_user)
+    flag = connection.add_follower(user,followed_user)
     return jsonify([1]) if (flag) else jsonify(list())
 
 @app.route('/get_followers', methods=["POST"])
