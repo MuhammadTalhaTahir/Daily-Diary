@@ -126,7 +126,7 @@ def follow_user():
     user = request.form.get("email")
     followed_user = request.form.get("femail")
     flag = connection.add_follower(user,followed_user)
-    return jsonify(flag) if (flag!=None) else jsonify(["Failed"])
+    return jsonify(list(flag)) if (flag!=None) else jsonify(["Failed"])
 
 @app.route('/get_followers', methods=["POST"])
 def get_followers():

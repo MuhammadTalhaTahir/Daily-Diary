@@ -1,3 +1,4 @@
+from email import message
 from ViewClasses import *
 import pymysql
 from datetime import datetime 
@@ -142,8 +143,8 @@ class Model:
     def add_follower(self,user,followed_user):
         query = 'select * from followes where email = %s and followed_user = %s'
         args = (user, followed_user)
-        flag = None
         record = self.dml_run(query,args,'get')
+        flag = None
         if bool(record[0]):
             query = 'delete from followes where email = %s and followed_user = %s'
             args = (user, followed_user)
@@ -181,6 +182,35 @@ class Model:
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
     
+    def update_chat(self,user):
+        query = 'select COUNT(*) As count from %s'
+        args = "chat"
+        flag = None
+        count = self.dml_run(query,args,'get')
+        if bool(count[0]) and count[0]["count"]>=3:
+            query = 'delete from %s'
+            args = "chat"
+            success_delete = self.dml_run(query,args,'insert')
+            if success_delete:
+                query = 'INSERT INTO chat VALUES (%s,%s,%s,%s)'
+                args = (user[0]["email"], user[0]["username"], user[0]["profile_picture"], user[1])
+                success = self.dml_run(query,args,'insert')
+                if success:
+                    flag = 0
+        else:
+            query = 'INSERT INTO chat VALUES (%s,%s,%s,%s)'
+            args = (user[0]["email"], user[0]["username"], user[0]["profile_picture"], user[1])
+            success = self.dml_run(query,args,'insert')
+            if success:
+                flag = 1
+        return flag
+    
+    def get_chat(self):
+        query = 'select * from %s'
+        args = "chat"
+        messages = self.dml_run(query,args,'get')
+        return messages if bool(messages) else list()
+
     def get_follower_pages(self,new_user):
         query = 'select email,username,profile_picture from users where email in (select followed_user from followers where email = %s)'
         args = new_user
