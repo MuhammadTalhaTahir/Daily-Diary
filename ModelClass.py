@@ -187,7 +187,7 @@ class Model:
         args = 'email'
         flag = None
         count = self.dml_run(query,args,'get')
-        if bool(count) and count[0]["count"]>=3:
+        if bool(count) and count[0]["count"]>=500:
             query = 'delete from chat'
             args = None
             success_delete = self.dml_run(query,args,'insert')
