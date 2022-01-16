@@ -25,7 +25,8 @@ def getPreviousText():
 def getText(data):
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     connection.update_chat(data)
-    emit("recieveText", data, broadcast=True)
+    newData = connection.get_chat()
+    emit("recieveText", newData, broadcast=True)
 
 
 if __name__ == '__main__':
