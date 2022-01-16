@@ -3,6 +3,7 @@ from flask_socketio import SocketIO,emit
 from ModelClass import *
 import json
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = 'secret!'
 socket = SocketIO(app, cors_allowed_origins="*")
 
@@ -12,9 +13,13 @@ with open('config.json') as jsondata:
 
 @socket.on("enterWorldChat")
 def join_room(data):
+    emit('userEnteredChat', data["currentUser"], broadcast=True)
+
+@socket.on("getPrevoiusText")
+def getPreviousText():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     messages = connection.get_chat()
-    emit('userEnteredChat', list(data["currentUser"],messages), broadcast=True)
+    emit('sendPrevious', messages)
 
 @socket.on("sendText")
 def getText(data):

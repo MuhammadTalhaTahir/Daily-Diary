@@ -183,31 +183,31 @@ class Model:
         return True if (success == True) else False
     
     def update_chat(self,user):
-        query = 'select COUNT(*) As count from %s'
-        args = "chat"
+        query = 'select COUNT(%s) As count from chat'
+        args = 'email'
         flag = None
         count = self.dml_run(query,args,'get')
-        if bool(count[0]) and count[0]["count"]>=3:
-            query = 'delete from %s'
-            args = "chat"
+        if bool(count) and count[0]["count"]>=3:
+            query = 'delete from chat'
+            args = None
             success_delete = self.dml_run(query,args,'insert')
             if success_delete:
                 query = 'INSERT INTO chat VALUES (%s,%s,%s,%s)'
-                args = (user[0]["email"], user[0]["username"], user[0]["profile_picture"], user[1])
+                args = (user["currentUser"]["email"], user["currentUser"]["username"], user["currentUser"]["profile_picture"], user["message"])
                 success = self.dml_run(query,args,'insert')
                 if success:
                     flag = 0
         else:
             query = 'INSERT INTO chat VALUES (%s,%s,%s,%s)'
-            args = (user[0]["email"], user[0]["username"], user[0]["profile_picture"], user[1])
+            args = (user["currentUser"]["email"], user["currentUser"]["username"], user["currentUser"]["profile_picture"], user["message"])
             success = self.dml_run(query,args,'insert')
             if success:
                 flag = 1
         return flag
     
     def get_chat(self):
-        query = 'select * from %s'
-        args = "chat"
+        query = 'select * from chat'
+        args = None
         messages = self.dml_run(query,args,'get')
         return messages if bool(messages) else list()
 

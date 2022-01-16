@@ -9,6 +9,7 @@ from flask import Flask, request, jsonify, session
 from flask import send_file
 import json
 import random
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
