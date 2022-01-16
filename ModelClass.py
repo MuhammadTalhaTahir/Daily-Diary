@@ -210,8 +210,8 @@ class Model:
         args = None
         messages = self.dml_run(query,args,'get')
         actual_list = list()
-        element = {"currentUser":None, "message":None}
         for i in messages:
+            element = {"currentUser":None, "message":None}
             sub_dict = dict()
             sub_dict["email"] = i["email"]
             sub_dict["username"] = i["username"]
