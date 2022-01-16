@@ -209,7 +209,17 @@ class Model:
         query = 'select * from chat'
         args = None
         messages = self.dml_run(query,args,'get')
-        return messages if bool(messages) else list()
+        actual_list = list()
+        sub_dict = dict()
+        element = {"currentUser":None, "message":None}
+        for i in messages:
+            sub_dict["email"] = i["email"]
+            sub_dict["username"] = i["username"]
+            sub_dict["profile_picture"] = i["profile_picture"]
+            element['currentUser'] = sub_dict
+            element['message'] = i["text_data"]
+            actual_list.append(element)
+        return actual_list if bool(actual_list) else list()
 
     def get_follower_pages(self,new_user):
         query = 'select email,username,profile_picture from users where email in (select followed_user from followers where email = %s)'
