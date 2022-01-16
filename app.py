@@ -116,7 +116,8 @@ def register_user():
 def search_user():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     name = request.form.get("name")
-    users = connection.search_user(name)
+    email = request.form.get("email")
+    users = connection.search_user(name,email)
     return jsonify(users) if (bool(users)) else jsonify(list())
 
 @app.route('/follow', methods=["POST"])

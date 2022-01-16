@@ -130,9 +130,9 @@ class Model:
                         i['liked'] = False
         return Ulist
     
-    def search_user(self,name):
-        query = 'select * from users where username like %s'
-        args = ('%'+name+'%')
+    def search_user(self,name,email):
+        query = 'select * from users where username like %s and email != %s'
+        args = ('%'+name+'%', email)
         public_users = self.dml_run(query,args,'get')
         if bool(public_users):
             for i in public_users:
