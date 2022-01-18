@@ -120,7 +120,8 @@ def register_user():
         diary = {"email":new_user["email"], "type":"public"}
         connection.add_diary(diary)
         msg = Message('Email Verification', sender = 'dailykidiary@gmail.com', recipients = [new_user["email"]])
-        msg.body = f'http://127.0.0.1:5000/verify_email/{new_user["user_key"]}/{new_user["email"]}'
+        authenticationLink = f'http://127.0.0.1:5000/verify_email/{new_user["user_key"]}/{new_user["email"]}'
+        msg.html = f'<div style="background-color: black; border-radius: 20px; color: #f5deb3; font-family: Tahoma, Verdana, sans-serif; padding: 10px;"><h2 style="text-align: center;"><strong>Hello {new_user["username"]}</strong></h2><p>You registered an account on DailyKiDiary, before being able to use your account you need to verify that this is your email address by clicking here: {authenticationLink}</p><p>Kind Regards,<br /><span style="color: #f5deb3;"><strong>DailyKiDiary</strong></span></p></div>'
         mail.send(msg)
         return jsonify([1])
     return jsonify(list())
