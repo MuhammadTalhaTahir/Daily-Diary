@@ -5,15 +5,23 @@ from pymysql import NULL, connections
 from ModelClass import *
 from flask_cors import CORS
 from datetime import datetime
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, redirect
 from flask import send_file
 import json
 import random
+from flask_mail import Mail, Message 
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'dailykidiary@gmail.com'
+app.config['MAIL_PASSWORD'] = 'dkd12345678'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 app.secret_key = 'dailykidiary'
+mail = Mail(app)
 
 with open('config.json') as jsondata:
     config = json.load(jsondata)
@@ -97,10 +105,11 @@ def register_user():
     new_user["username"] = request.form.get("fname") + " " + request.form.get("lname")
     new_user["email"] = request.form.get('email')
     new_user["user_pass"] = request.form.get('pass')
-    new_user["user_status"] = True
+    new_user["user_status"] = False
     new_user["date_joined"] = now.strftime('%Y-%m-%d %H:%M:%S')
     new_user["dob"] = request.form.get('dob')
     new_user["gender"] = request.form.get('gender')
+    new_user["user_key"] = random.randint(1,100)
     new_user["location"] = request.form.get('loc')
     new_user["address"] = request.form.get('add')
     pimg = request.files['img']
@@ -110,8 +119,18 @@ def register_user():
         pimg.save(f"userProfilePics\\{pimg.filename}")
         diary = {"email":new_user["email"], "type":"public"}
         connection.add_diary(diary)
+        msg = Message('Email Verification', sender = 'dailykidiary@gmail.com', recipients = [new_user["email"]])
+        msg.body = f'http://127.0.0.1:5000/verify_email/{new_user["user_key"]}/{new_user["email"]}'
+        mail.send(msg)
         return jsonify([1])
     return jsonify(list())
+
+@app.route('/verify_email/<int:key>/<string:email>')
+def verify(key,email):
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    success = connection.confirmation(key,email)
+    print("Verified: ", success)
+    return redirect("http://localhost:3001/")
 
 @app.route('/search', methods=["POST"])
 def search_user():

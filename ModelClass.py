@@ -44,8 +44,8 @@ class Model:
                 return flag
             
     def login(self, email, password):
-        query = "select * from users where email=%s AND user_pass=%s"
-        args = (email,password)
+        query = "select * from users where email=%s AND user_pass=%s and user_status = %s"
+        args = (email,password,True)
         user_list = None
         user_list = self.dml_run(query,args,'get')
         return user_list if (bool(user_list)) else list()
@@ -64,12 +64,23 @@ class Model:
         return True if (bool(user_data)) else False
     
     def register(self, new_user):
-        query = 'INSERT INTO users VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-        args = (new_user["username"],new_user["email"],new_user["user_pass"],new_user["user_status"],
+        query = 'INSERT INTO users VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        args = (new_user["username"],new_user["email"],new_user["user_pass"],new_user["user_status"],new_user["user_key"],
         new_user["date_joined"],new_user["dob"],new_user["gender"],new_user["location"],new_user["address"],
         new_user["profile_picture"])
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
+    
+    def confirmation(self, key, email):
+        query = 'select user_key from users where email = %s'
+        args = email
+        user_key = self.dml_run(query,args,'get')
+        if user_key[0]["user_key"] == key:
+            query = 'update users set user_status = %s where email = %s'
+            args = (True, email)
+            success= self.dml_run(query,args,'insert')
+            return True if (success == True) else False
+        return False
     
     def add_diary(self, new_user):
         query = 'INSERT INTO diaries(email,page_count,diary_type) VALUES (%s,%s,%s)'
