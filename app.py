@@ -131,7 +131,7 @@ def verify(key,email):
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     success = connection.confirmation(key,email)
     print("Verified: ", success)
-    return redirect("http://localhost:3001/")
+    return redirect("http://localhost:3000/")
 
 @app.route('/search', methods=["POST"])
 def search_user():
@@ -153,8 +153,8 @@ def follow_user():
 def get_followers():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     user = request.form.get("email")
-    followers = connection.get_followers(user)
-    return jsonify(followers) if (followers) else jsonify(list())
+    followers_data = connection.get_followers(user)
+    return jsonify(followers_data) if (followers_data) else jsonify(list())
 
 @app.route('/liked', methods=["POST"])
 def liked_page():

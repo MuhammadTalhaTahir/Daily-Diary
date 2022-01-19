@@ -94,9 +94,9 @@ class Model:
         data = self.dml_run(query,args,'get')
         query = 'INSERT INTO pages(email,diary_id, page_date, visible_status, content_text,content_video_pic, is_content_video) VALUES (%s,%s,%s,%s,%s,%s,%s)'
         args = (new_user["email"],data[0]["diary_id"],new_user["page_date"],new_user["visible_status"],new_user["content_text"],new_user["content_video_pic"], new_user['is_content_video'])
-        print("IS CONTENT VIDEO: ",new_user["is_content_video"])
+        
         success = self.dml_run(query,args,'insert')
-        print(success, 'Something went wrong here')
+        
         if success:
             query = 'update diaries set page_count = %s where diary_id = %s'
             args = ((data[0]["page_count"]+1),data[0]["diary_id"])
@@ -170,14 +170,14 @@ class Model:
                 flag = 0 
         return flag
     
-    def get_followers(self,user):
-        query = 'select email from followers where followed_user = %s'
-        args = (user)
-        followers = self.dml_run(query,args,'get')
-        if bool(followers):
-            for i in followers:
-                i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{i["email"]}')
-        return followers if (bool(followers)) else list()
+    # def get_followers(self,user):
+    #     query = 'select email from followers where followed_user = %s'
+    #     args = (user)
+    #     followers = self.dml_run(query,args,'get')
+    #     if bool(followers):
+    #         for i in followers:
+    #             i['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{i["email"]}')
+    #     return followers if (bool(followers)) else list()
     
     def set_like(self,interact):
         query = 'select MAX(like_count) AS "like_count" from page_interaction where page_id = %s '
@@ -232,6 +232,33 @@ class Model:
             actual_list.append(element)
         return actual_list if bool(actual_list) else list()
 
+    def get_followers(self, email):
+        
+        query = 'select COUNT(*) As user_following from followers where email = %s'
+        args = email 
+        count_followed = self.dml_run(query,args,'get')
+        query = 'select COUNT(*) As user_followers from followers where followed_user = %s'
+        count_followers = self.dml_run(query,args,'get')
+       
+        query = 'select page_count from diaries where email = %s'
+
+        page_count = self.dml_run(query,args,'get')
+        data = list()
+        
+        if bool(count_followed):
+            data.append(count_followed[0])
+        else:
+            data.append({"user_following":0})
+        if bool(count_followers):
+            data.append(count_followers[0])
+        else:
+            data.append({"user_followers":0})
+        if bool(page_count[0]):
+            data.append(page_count[0])
+        else:
+            data.append({"page_count":0}) 
+        return data 
+    
     def get_follower_pages(self,new_user):
         query = 'select email,username,profile_picture from users where email in (select followed_user from followers where email = %s)'
         args = new_user
