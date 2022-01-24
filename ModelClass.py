@@ -71,6 +71,16 @@ class Model:
         success = self.dml_run(query,args,'insert')
         return True if (success == True) else False
     
+    def editProfile(self, edit_user):
+        if edit_user["profile_picture"] != "NO-PIC":
+            query = 'UPDATE users SET username = %s, user_pass = %s, profile_picture = %s WHERE email = %s'
+            args = (edit_user["username"], edit_user["user_pass"], edit_user["profile_picture"], edit_user["email"])
+        else:
+            query = 'UPDATE users SET username = %s, user_pass = %s WHERE email = %s'
+            args = (edit_user["username"], edit_user["user_pass"], edit_user["email"])
+        success = self.dml_run(query, args,'insert')
+        return True if (success == True) else False
+    
     def confirmation(self, key, email):
         query = 'select user_key from users where email = %s'
         args = email
@@ -109,8 +119,8 @@ class Model:
         args = new_user
         page_list = None
         page_list = self.dml_run(query,args,'get')
-        return page_list if (bool(page_list)) else list()
-    
+        return page_list if (bool(page_list)) else list()     
+            
     def get_explore_pages(self,new_user):
         query = 'select email,username,profile_picture from users where email != %s'
         args = new_user

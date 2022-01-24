@@ -1,7 +1,3 @@
-from code import interact
-from logging import DEBUG
-from sys import modules
-from pymysql import NULL, connections
 from ModelClass import *
 from flask_cors import CORS
 from datetime import datetime
@@ -53,6 +49,19 @@ def user_pages():
 def public_pages():
     connection = Model(config['host'], config['user'], config['password'], config['database'])
     page_list = connection.get_explore_pages(request.form.get('email'))
+    if (page_list):
+        for i in page_list:
+            if(bool(i)):
+                if i["content_video_pic"] != "NO-PIC":
+                    i["content_video_pic"] = str(f'http://127.0.0.1:5000/content_pic/{i["content_video_pic"]}')
+        random.shuffle(page_list)
+        return jsonify(page_list)
+    return jsonify(list())
+
+@app.route('/follower_pages',methods = ["post"])
+def follower_pages():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    page_list = connection.get_follower_pages(request.form.get('email'))
     if (page_list):
         for i in page_list:
             if(bool(i)):
@@ -119,12 +128,39 @@ def register_user():
         pimg.save(f"userProfilePics\\{pimg.filename}")
         diary = {"email":new_user["email"], "type":"public"}
         connection.add_diary(diary)
+        url = "'https://raw.githubusercontent.com/MuhammadTalhaTahir/Daily-Diary/b2a4bcfd064602aae20b58daa8c32f19bd6cefbd/i-like-food.svg'"
         msg = Message('Email Verification', sender = 'dailykidiary@gmail.com', recipients = [new_user["email"]])
         authenticationLink = f'http://127.0.0.1:5000/verify_email/{new_user["user_key"]}/{new_user["email"]}'
-        msg.html = f'<div style="background-color: black; border-radius: 20px; color: #f5deb3; font-family: Tahoma, Verdana, sans-serif; padding: 10px;"><h2 style="text-align: center;"><strong>Hello {new_user["username"]}</strong></h2><p>You registered an account on DailyKiDiary, before being able to use your account you need to verify that this is your email address by clicking here: {authenticationLink}</p><p>Kind Regards,<br /><span style="color: #f5deb3;"><strong>DailyKiDiary</strong></span></p></div>'
+        msg.html = f'<div style="background-color: #221e1e; border-radius: 20px; color: wheat; font-family: Tahoma, Verdana, sans-serif; padding: 10px;"><h1 style="text-align: center;"><strong>ٱلسَّلَامُ عَلَيْكُمْ <br /></strong></h1><h2 style="text-align: center;"><span style="color: brown;"> {new_user["username"]} </span></h2><hr/><p>Welcome to Daily کی Diary 📖📕, before being able to use your account you need to verify that this is your email address by clicking here: {authenticationLink}</p><p style="text-align: left;"><span style="color: brown;">If you do not recognize this activity simply ignore this mail.&nbsp;</span></p><p>Kind Regards,<br /><span style="color: brown;"><strong>Daily کی Diary</strong></span></p></div>'
         mail.send(msg)
         return jsonify([1])
     return jsonify(list())
+
+@app.route('/edit_profile', methods=["POST"])
+def edit():
+    connection = Model(config['host'], config['user'], config['password'], config['database'])
+    edit_user = dict()
+    edit_user["username"] = request.form.get("fname") + " " + request.form.get("lname")
+    edit_user["email"] = request.form.get('email')
+    edit_user["user_pass"] = request.form.get('pass')
+    if request.files.get("img") is None:
+        pimg = "NO-PIC"
+    else:
+        pimg = request.files['img']
+    if pimg != "NO-PIC":
+        edit_user["profile_picture"] = f"userProfilePics\\{pimg.filename}"
+    else:
+        edit_user["profile_picture"] = pimg
+    if connection.user_exist(edit_user['email']):
+        if connection.editProfile(edit_user):
+            if pimg != "NO-PIC":
+                pimg.save(f"userProfilePics\\{pimg.filename}")
+            user_data = connection.login(edit_user['email'],edit_user['user_pass'])
+            if len(user_data) > 0:
+                user_data[0]['user_status'] = True
+                user_data[0]['profile_picture'] = str(f'http://127.0.0.1:5000/profile_picture/{user_data[0]["email"]}')
+                return jsonify(user_data)
+            return jsonify(list())
 
 @app.route('/verify_email/<int:key>/<string:email>')
 def verify(key,email):
@@ -147,7 +183,7 @@ def follow_user():
     user = request.form.get("email")
     followed_user = request.form.get("femail")
     flag = connection.add_follower(user,followed_user)
-    return jsonify(list(flag)) if (flag!=None) else jsonify(["Failed"])
+    return jsonify([flag]) if (flag!=None) else jsonify(["Failed"])
 
 @app.route('/get_followers', methods=["POST"])
 def get_followers():
